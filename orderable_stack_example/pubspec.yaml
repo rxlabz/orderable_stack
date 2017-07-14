@@ -1,0 +1,17 @@
+name: orderable_stack_example
+description: An orderable container widget example
+
+dependencies:
+  flutter:
+    sdk: flutter
+  orderable_stack:
+    path: ../
+
+flutter:
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/girafe1.png
+    - assets/girafe2.png
+    - assets/girafe3.png

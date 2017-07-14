@@ -1,0 +1,13 @@
+name: orderable_stack
+description: An orderable container widget
+version: 0.1.0
+homepage: https://github.com/rxlabz/orderable_stack
+author: rxlabz <erick@rxla.bz>
+
+environment:
+  sdk: '>=1.20.1 <2.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  quiver: '^0.25.0'
