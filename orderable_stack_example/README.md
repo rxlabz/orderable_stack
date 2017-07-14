@@ -1,8 +1,5 @@
 # orderable_stack_example
 
-A new Flutter project.
+![horizontal](demo.gif)
 
-## Getting Started
-
-For help getting started with Flutter, view our online
-[documentation](http://flutter.io/).
+![vertical](demo_v.gif) 

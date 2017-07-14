@@ -46,6 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     OrderPreview preview = new OrderPreview(orderNotifier: orderNotifier);
+    Size gSize = MediaQuery.of(context).size;
     return new Scaffold(
         appBar: new AppBar(
           title: new Text(widget.title),
@@ -65,7 +66,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: imgMode
                       ? new OrderableStack<Img>(
                           items: imgs,
-                          itemSize: const Size(200.0, 520.0),
+                          itemSize: gSize.width < gSize.height
+                              ? new Size(gSize.width / 3, gSize.height - 200.0)
+                              : new Size(200.0, gSize.height - 300.0),
                           margin: 0.0,
                           itemBuilder: imgItemBuilder,
                           onChange: (List<Object> orderedList) =>
@@ -73,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       : new OrderableStack<String>(
                           direction: Direction.Vertical,
                           items: chars,
-                          itemSize: const Size(200.0, 80.0),
+                          itemSize: const Size(200.0, 50.0),
                           itemBuilder: itemBuilder,
                           onChange: (List<String> orderedList) =>
                               orderNotifier.value = orderedList.toString()))
@@ -92,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: new Column(children: [
         new Text(
           "${data.data}",
-          style: new TextStyle(fontSize: 48.0, color: Colors.white),
+          style: new TextStyle(fontSize: 36.0, color: Colors.white),
         )
       ])),
     );
@@ -110,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
               new Image.asset(
                 data.data.url,
-                fit: BoxFit.fitWidth,
+                fit: BoxFit.contain,
               ),
             ])),
       );
