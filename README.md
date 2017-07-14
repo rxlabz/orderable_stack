@@ -2,9 +2,9 @@
 
 A Flutter orderable container
 
-![horizontal](https://github.com/rxlabz/orderable_stack/blob/master/demo.gif)
+![horizontal](https://raw.githubusercontent.com/rxlabz/orderable_stack/master/demo.gif)
 
-![vertical](https://github.com/rxlabz/orderable_stack/blob/master/demo_v.gif)
+![vertical](https://raw.githubusercontent.com/rxlabz/orderable_stack/master/demo_v.gif)
 
 ## Usage
 
