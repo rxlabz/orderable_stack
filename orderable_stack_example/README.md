@@ -1,5 +1,5 @@
 # orderable_stack_example
 
-![horizontal](demo.gif)
+![horizontal](https://github.com/rxlabz/orderable_stack/blob/master/demo.gif)
 
-![vertical](demo_v.gif) 
+![vertical](https://github.com/rxlabz/orderable_stack/blob/master/demo_v.gif) 

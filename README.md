@@ -2,11 +2,11 @@
 
 A Flutter orderable container
 
-![horizontal](demo.gif)
+![horizontal](https://github.com/rxlabz/orderable_stack/blob/master/demo.gif)
 
-![vertical](demo_v.gif)
+![vertical](https://github.com/rxlabz/orderable_stack/blob/master/demo_v.gif)
 
 ## Usage
 
-cf. orderable_stack_example
+cf. [orderable_stack_example](https://github.com/rxlabz/orderable_stack/tree/master/orderable_stack_example)
 
