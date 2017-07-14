@@ -22,13 +22,16 @@ class OrderableStack<T> extends StatefulWidget {
   WidgetFactory itemBuilder;
   void Function(List<T>) onChange;
 
+  final bool shuffle;
+
   OrderableStack(
       {@required this.items,
       @required this.itemBuilder,
       Size itemSize = kDefaultItemSize,
       this.margin = 20.0,
       this.onChange,
-      this.direction = Direction.Horizontal})
+      this.direction = Direction.Horizontal,
+      this.shuffle = true})
       : _itemSize = itemSize,
         super(key: new GlobalKey());
 
@@ -65,11 +68,10 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
     items = enumerate(rawItems)
         .map((l) => new Orderable<T>(data: l.value, dataIndex: l.index))
         .toList();
-    items.shuffle();
+    if (widget.shuffle) items.shuffle();
     items = enumerate(items)
         .map<Orderable<T>>((IndexedValue e) => e.value..visibleIndex = e.index)
         .toList();
-
   }
 
   @override
