@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:orderable_stack/orderable_stack.dart';
 
+/// internal stack
 class OrderableContainer extends StatefulWidget {
   final List<OrderableWidget> uiItems;
 
@@ -12,23 +13,21 @@ class OrderableContainer extends StatefulWidget {
   OrderableContainer(
       {@required this.uiItems,
       @required this.itemSize,
-      this.margin = 10.0,
+      this.margin = kMargin,
       this.direction = Direction.Horizontal})
       : super(key: new Key('OrderableContainer'));
 
   @override
-  State<StatefulWidget> createState() => new OrderableStackState();
+  State<StatefulWidget> createState() => new OrderableContainerState();
 }
 
-class OrderableStackState extends State<OrderableContainer> {
+class OrderableContainerState extends State<OrderableContainer> {
   @override
-  Widget build(BuildContext context) {
-    return new ConstrainedBox(
-        constraints: new BoxConstraints.loose(stackSize),
-        child: new Stack(
-          children: widget.uiItems,
-        ));
-  }
+  Widget build(BuildContext context) => new ConstrainedBox(
+      constraints: new BoxConstraints.loose(stackSize),
+      child: new Stack(
+        children: widget.uiItems,
+      ));
 
   Size get stackSize => widget.direction == Direction.Horizontal
       ? new Size(
@@ -38,9 +37,10 @@ class OrderableStackState extends State<OrderableContainer> {
           (widget.itemSize.height + widget.margin) * widget.uiItems.length);
 }
 
+/// Content Widget wrapper : add animation and gestureDetection to itemBuilder
+/// widgets
 class OrderableWidget<T> extends StatefulWidget {
   final Orderable<T> data;
-  int index;
   Size itemSize;
   double maxPos;
   Direction direction;
@@ -49,76 +49,71 @@ class OrderableWidget<T> extends StatefulWidget {
   double step;
   final WidgetFactory itemBuilder;
 
-  OrderableWidget({
-    Key key,
-    @required this.data,
-    @required this.itemBuilder,
-    @required this.maxPos,
-    @required this.itemSize,
-    this.onMove,
-    this.onDrop,
-    bool isDragged = false,
-    this.direction = Direction.Horizontal,
-    this.step = 0.0,
-  })
+  OrderableWidget(
+      {Key key,
+      @required this.data,
+      @required this.itemBuilder,
+      @required this.maxPos,
+      @required this.itemSize,
+      this.onMove,
+      this.onDrop,
+      bool isDragged = false,
+      this.direction = Direction.Horizontal,
+      this.step = 0.0})
       : super(key: key) {}
   @override
-  State<StatefulWidget> createState() =>
-      new OrderableWidgetState(data: data, onDrop: onDrop, onMove: onMove);
+  State<StatefulWidget> createState() => new OrderableWidgetState(data: data);
 
   @override
-  String toString() {
-    return 'DraggableText{data: $data, position: ${data.currentPosition}}';
-  }
+  String toString() =>
+      'DraggableText{data: $data, position: ${data.currentPosition}}';
 }
 
 class OrderableWidgetState<T> extends State<OrderableWidget>
     with SingleTickerProviderStateMixin {
+  /// item
   Orderable<T> data;
-  VoidCallback onDrop;
-  VoidCallback onMove;
 
   bool get isHorizontal => widget.direction == Direction.Horizontal;
-  bool get isVertical => widget.direction == Direction.Vertical;
 
-  OrderableWidgetState({this.data, this.onDrop, this.onMove});
+  OrderableWidgetState({this.data});
 
   @override
-  Widget build(BuildContext context) {
-    GestureDetector gestureTarget = isHorizontal
-        ? new GestureDetector(
-            onHorizontalDragStart: startDrag,
-            onHorizontalDragEnd: endDrag,
-            onHorizontalDragUpdate: (event) {
-              setState(() {
-                if (moreThanMin(event) && lessThanMax(event))
-                  data.currentPosition =
-                      new Offset(data.x + event.primaryDelta, data.y);
-                onMove();
-              });
-            },
-            child: widget.itemBuilder(data: data, itemSize: widget.itemSize),
-          )
-        : new GestureDetector(
-            onVerticalDragStart: startDrag,
-            onVerticalDragEnd: endDrag,
-            onVerticalDragUpdate: (event) {
-              setState(() {
-                if (moreThanMin(event) && lessThanMax(event))
-                  data.currentPosition =
-                      new Offset(data.x, data.y + event.primaryDelta);
-                onMove();
-              });
-            },
-            child: widget.itemBuilder(data: data, itemSize: widget.itemSize),
-          );
-    return new AnimatedPositioned(
-      duration: new Duration(milliseconds: data.selected ? 1 : 200),
-      left: data.x,
-      top: data.y,
-      child: gestureTarget,
-    );
-  }
+  Widget build(BuildContext context) => new AnimatedPositioned(
+        duration: new Duration(milliseconds: data.selected ? 1 : 200),
+        left: data.x,
+        top: data.y,
+        child: buildGestureDetector(horizontal: isHorizontal),
+      );
+
+  /// build horizontal or verticak drag gesture detector
+  Widget buildGestureDetector({bool horizontal}) => horizontal
+    ? new GestureDetector(
+    onHorizontalDragStart: startDrag,
+    onHorizontalDragEnd: endDrag,
+    onHorizontalDragUpdate: (event) {
+      setState(() {
+        if (moreThanMin(event) && lessThanMax(event))
+          data.currentPosition =
+          new Offset(data.x + event.primaryDelta, data.y);
+        widget.onMove();
+      });
+    },
+    child: widget.itemBuilder(data: data, itemSize: widget.itemSize),
+  )
+    : new GestureDetector(
+    onVerticalDragStart: startDrag,
+    onVerticalDragEnd: endDrag,
+    onVerticalDragUpdate: (event) {
+      setState(() {
+        if (moreThanMin(event) && lessThanMax(event))
+          data.currentPosition =
+          new Offset(data.x, data.y + event.primaryDelta);
+        widget.onMove();
+      });
+    },
+    child: widget.itemBuilder(data: data, itemSize: widget.itemSize),
+  );
 
   void startDrag(DragStartDetails event) {
     setState(() {
@@ -129,7 +124,7 @@ class OrderableWidgetState<T> extends State<OrderableWidget>
   void endDrag(DragEndDetails event) {
     setState(() {
       data.selected = false;
-      onDrop();
+      widget.onDrop();
     });
   }
 
@@ -143,7 +138,5 @@ class OrderableWidgetState<T> extends State<OrderableWidget>
       widget.maxPos;
 
   @override
-  String toString() {
-    return 'OrderableWidgetState{data: $data}';
-  }
+  String toString() => 'OrderableWidgetState{data: $data}';
 }

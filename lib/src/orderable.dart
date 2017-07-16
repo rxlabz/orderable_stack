@@ -4,24 +4,33 @@ import 'package:flutter/foundation.dart';
 
 enum Direction { Vertical, Horizontal }
 
+/// associate value with
 class Orderable<T> {
-  final T data;
+  final T value;
+
+  /// initial index ( potentially the "correct" index if there is one )
   final int dataIndex;
+
+  /// OrderableWidget position index
   int visibleIndex;
-  bool selected = false;
-  bool validated = false;
+
+  /// OrderableWidget currentPosition
   Offset currentPosition = Offset.zero;
+
+  /// is currently dragged
+  bool selected = false;
+
+  /// TODO : clarify validation goal & process
+  bool validated = false;
 
   double get x => currentPosition.dx;
   double get y => currentPosition.dy;
 
-  Orderable({
-    @required this.data,
-    @required this.dataIndex,
-  })
+  Orderable({@required this.value, @required this.dataIndex})
       : visibleIndex = dataIndex;
 }
 
+/// sort orderable items by widget.currentPosition
 void sortOrderables<T extends Orderable<U>, U>(
     {List<T> items,
     Size itemSize,

@@ -13,71 +13,78 @@ const kMaxHeight = 600.0;
 
 const kDefaultItemSize = const Size(140.0, 80.0);
 
+/// container filled with a data List<T>,
+/// allowing to reorder items
 class OrderableStack<T> extends StatefulWidget {
-  List<T> items;
-  Direction direction;
-  Size _itemSize;
+  /// list of items to reorder
+  final List<T> items;
+
+  final Direction direction;
+
+  final Size itemSize;
+
   final double margin;
 
-  WidgetFactory itemBuilder;
+  /// function to build orderableWidgets "content"
+  final WidgetFactory itemBuilder;
+
+  /// new order callback
   void Function(List<T>) onChange;
 
+  /// true if items must be randomized (default : true )
   final bool shuffle;
 
+  double get step => direction == Direction.Horizontal
+      ? itemSize.width + margin
+      : itemSize.height + margin;
+
+  ///
   OrderableStack(
       {@required this.items,
       @required this.itemBuilder,
-      Size itemSize = kDefaultItemSize,
-      this.margin = 20.0,
+      Key key,
       this.onChange,
+      this.itemSize = kDefaultItemSize,
+      this.margin = kMargin,
       this.direction = Direction.Horizontal,
       this.shuffle = true})
-      : _itemSize = itemSize,
-        super(key: new GlobalKey());
+      : super(key: key);
 
   @override
-  _OrderableStackState createState() => new _OrderableStackState<T>(items,
-      itemSize: _itemSize,
-      margin: margin,
-      itemBuilder: itemBuilder,
-      direction: direction);
+  _OrderableStackState createState() => new _OrderableStackState<T>(
+        items,
+      );
 }
 
 class _OrderableStackState<T> extends State<OrderableStack<T>> {
-  Size itemSize;
-  double margin;
-  List<Orderable<T>> items;
+  List<Orderable<T>> orderableItems;
+  List<T> lastOrder;
 
+  /// currently dragged widget if there is
   OrderableWidget dragged;
 
-  final WidgetFactory itemBuilder;
 
-  Direction direction;
-
-  bool isItemDragged(Orderable l) => l.selected;
-
-  double get step => direction == Direction.Horizontal
-      ? itemSize.width + widget.margin
-      : itemSize.height + widget.margin;
-
-  _OrderableStackState(List<T> rawItems,
-      {this.itemSize,
-      this.margin = 0.0,
-      @required this.itemBuilder,
-      this.direction = Direction.Horizontal}) {
-    items = enumerate(rawItems)
-        .map((l) => new Orderable<T>(data: l.value, dataIndex: l.index))
-        .toList();
-    if (widget.shuffle) items.shuffle();
-    items = enumerate(items)
-        .map<Orderable<T>>((IndexedValue e) => e.value..visibleIndex = e.index)
-        .toList();
+  _OrderableStackState(List<T> rawItems) {
+    orderableItems = enumerate(rawItems)
+      .map((l) => new Orderable<T>(value: l.value, dataIndex: l.index))
+      .toList();
   }
+
+  List<T> get currentOrder => orderableItems.map((item) => item.value).toList();
 
   @override
   void initState() {
     super.initState();
-    widget.onChange(items.map((item) => item.data).toList());
+
+
+    if (widget.shuffle) orderableItems.shuffle();
+    orderableItems = enumerate(orderableItems)
+      .map<Orderable<T>>((IndexedValue e) => e.value..visibleIndex = e.index)
+      .toList();
+
+    /// notify the initial order
+    widget.onChange(currentOrder);
+    lastOrder = currentOrder;
   }
 
   @override
@@ -86,65 +93,71 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
         children: [
           new Center(
               child: new OrderableContainer(
-                  direction: direction,
-                  uiItems: updateZIndexes(getOrderableChildren()),
-                  itemSize: itemSize,
+                  direction: widget.direction,
+                  uiItems: _updateZIndexes(_buildOrderableWidgets()),
+                  itemSize: widget.itemSize,
                   margin: kMargin))
         ],
       );
 
-  List<OrderableWidget<T>> getOrderableChildren() => items
+  List<OrderableWidget<T>> _buildOrderableWidgets() => orderableItems
       .map((Orderable<T> l) => new OrderableWidget(
           key: new Key('item_${l.dataIndex}'),
-          step: step,
-          itemBuilder: itemBuilder,
-          itemSize: itemSize,
-          direction: direction,
-          maxPos: items.length * step,
+          step: widget.step,
+          itemBuilder: widget.itemBuilder,
+          itemSize: widget.itemSize,
+          direction: widget.direction,
+          maxPos: orderableItems.length * widget.step,
           data: l..currentPosition = getCurrentPosition(l),
-          isDragged: isItemDragged(l),
-          onDrop: onDrop,
-          onMove: onDragMove))
+          isDragged: l.selected,
+          onDrop: _onDrop,
+          onMove: _onDragMove))
       .toList();
 
   /// get the item position based on the visibleIndex property
   /// if te item is dragged its current position is returned
-  Offset getCurrentPosition(Orderable l) => isItemDragged(l)
+  Offset getCurrentPosition(Orderable l) => l.selected
       ? l.currentPosition // if isDragged don't move
-      : direction == Direction.Horizontal
-          ? new Offset(l.visibleIndex * (itemSize.width + widget.margin),
+      : widget.direction == Direction.Horizontal
+          ? new Offset(l.visibleIndex * (widget.itemSize.width + widget.margin),
               l.currentPosition.dy)
           : new Offset(l.currentPosition.dx,
-              l.visibleIndex * (itemSize.height + widget.margin));
+              l.visibleIndex * (widget.itemSize.height + widget.margin));
 
-  void onDragMove() {
+  /// during item dragMove : sort data items by their widget currentPosition
+  /// and update widget positions back
+  void _onDragMove() {
     setState(() {
       sortOrderables<Orderable<T>, T>(
-          items: items,
-          itemSize: itemSize,
-          margin: margin,
-          direction: direction);
+          items: orderableItems,
+          itemSize: widget.itemSize,
+          margin: widget.margin,
+          direction: widget.direction);
       updateItemsPos();
     });
   }
 
-  void onDrop() {
+  /// on dragged : update positions and notify new order if changed
+  void _onDrop() {
     setState(() {
       dragged = null;
       updateItemsPos();
-      widget.onChange(items.map((item) => item.data).toList());
+      if( currentOrder != lastOrder ){
+        widget.onChange(currentOrder);
+        lastOrder = currentOrder;
+      }
     });
   }
 
   void updateItemsPos([Direction direction = Direction.Horizontal]) {
-    enumerate(items).forEach((item) {
+    enumerate(orderableItems).forEach((item) {
       item.value.visibleIndex = item.index;
       item.value.currentPosition = getCurrentPosition(item.value);
     });
   }
 
   /// put the dragged item on top of stack ( z-index)
-  List<OrderableWidget<T>> updateZIndexes(
+  List<OrderableWidget<T>> _updateZIndexes(
       List<OrderableWidget<T>> OrderableItems) {
     final dragged = OrderableItems.where((t) => t.data.selected);
     if (dragged.length > 0) {
