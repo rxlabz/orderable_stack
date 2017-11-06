@@ -94,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
       child: new Center(
           child: new Column(children: [
         new Text(
-          "${data.data}",
+          "${data.value}",
           style: new TextStyle(fontSize: 36.0, color: Colors.white),
         )
       ])),
@@ -112,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
               new Image.asset(
-                data.data.url,
+                data.value.url,
                 fit: BoxFit.contain,
               ),
             ])),
