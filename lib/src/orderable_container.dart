@@ -65,7 +65,7 @@ class OrderableWidget<T> extends StatefulWidget {
   State<StatefulWidget> createState() => new OrderableWidgetState(data: data);
 
   @override
-  String toString() =>
+  String toString({ DiagnosticLevel minLevel: DiagnosticLevel.debug }) =>
       'DraggableText{data: $data, position: ${data.currentPosition}}';
 }
 
@@ -138,5 +138,5 @@ class OrderableWidgetState<T> extends State<OrderableWidget>
       widget.maxPos;
 
   @override
-  String toString() => 'OrderableWidgetState{data: $data}';
+  String toString({ DiagnosticLevel minLevel: DiagnosticLevel.debug }) => 'OrderableWidgetState{data: $data}';
 }
