@@ -10,4 +10,4 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  quiver: '^0.25.0'
+  quiver: '^0.28.0'
