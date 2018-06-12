@@ -4,7 +4,7 @@ import 'package:orderable_stack/orderable_stack.dart';
 import 'package:quiver/iterables.dart';
 
 /// Widget factory method
-typedef Widget WidgetFactory({Orderable data, Size itemSize});
+typedef Widget WidgetFactory<T>({Orderable<T> data, Size itemSize});
 
 const kMargin = 20.0;
 
@@ -26,10 +26,10 @@ class OrderableStack<T> extends StatefulWidget {
   final double margin;
 
   /// function to build orderableWidgets "content"
-  final WidgetFactory itemBuilder;
+  final WidgetFactory<T> itemBuilder;
 
   /// new order callback
-  void Function(List<T>) onChange;
+  final void Function(List<T>) onChange;
 
   /// true if items must be randomized (default : true )
   final bool shuffle;
@@ -61,13 +61,12 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
   List<T> lastOrder;
 
   /// currently dragged widget if there is
-  OrderableWidget dragged;
-
+  OrderableWidget<T> dragged;
 
   _OrderableStackState(List<T> rawItems) {
     orderableItems = enumerate(rawItems)
-      .map((l) => new Orderable<T>(value: l.value, dataIndex: l.index))
-      .toList();
+        .map((l) => new Orderable<T>(value: l.value, dataIndex: l.index))
+        .toList();
   }
 
   List<T> get currentOrder => orderableItems.map((item) => item.value).toList();
@@ -76,11 +75,10 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
   void initState() {
     super.initState();
 
-
     if (widget.shuffle) orderableItems.shuffle();
     orderableItems = enumerate(orderableItems)
-      .map<Orderable<T>>((IndexedValue e) => e.value..visibleIndex = e.index)
-      .toList();
+        .map<Orderable<T>>((IndexedValue e) => e.value..visibleIndex = e.index)
+        .toList();
 
     /// notify the initial order
     widget.onChange(currentOrder);
@@ -92,7 +90,7 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           new Center(
-              child: new OrderableContainer(
+              child: new OrderableContainer<T>(
                   direction: widget.direction,
                   uiItems: _updateZIndexes(_buildOrderableWidgets()),
                   itemSize: widget.itemSize,
@@ -142,7 +140,7 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
     setState(() {
       dragged = null;
       updateItemsPos();
-      if( currentOrder != lastOrder ){
+      if (currentOrder != lastOrder) {
         widget.onChange(currentOrder);
         lastOrder = currentOrder;
       }
@@ -158,13 +156,13 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
 
   /// put the dragged item on top of stack ( z-index)
   List<OrderableWidget<T>> _updateZIndexes(
-      List<OrderableWidget<T>> OrderableItems) {
-    final dragged = OrderableItems.where((t) => t.data.selected);
+      List<OrderableWidget<T>> orderableItems) {
+    final dragged = orderableItems.where((t) => t.data.selected);
     if (dragged.length > 0) {
       final item = dragged.first;
-      OrderableItems.remove(dragged.first);
-      OrderableItems.add(item);
+      orderableItems.remove(dragged.first);
+      orderableItems.add(item);
     }
-    return OrderableItems;
+    return orderableItems;
   }
 }

@@ -45,18 +45,20 @@ void sortOrderables<T extends Orderable<U>, U>(
     double halfW = itemSize.width / 2;
     double step = (halfW + margin);
 
+    int result;
     if (a.selected) {
       if (a.visibleIndex > b.visibleIndex)
-        return (xA - step).compareTo(xB);
+        result = (xA - step).compareTo(xB);
       else
-        return (xA + (a.selected ? halfW : 0))
+        result = (xA + (a.selected ? halfW : 0))
             .compareTo((xB + (b.selected ? step : 0)));
     } else if (b.selected) {
       if (a.visibleIndex > b.visibleIndex)
-        return xA.compareTo(xB + halfW);
+        result = xA.compareTo(xB + halfW);
       else
-        return xA.compareTo((xB - step));
+        result = xA.compareTo((xB - step));
     }
+    return result;
   }
 
   int orderableVSort(T a, T b) {
@@ -68,18 +70,20 @@ void sortOrderables<T extends Orderable<U>, U>(
     double halfH = itemSize.height / 2;
     double step = (halfH + margin);
 
+    int result;
     if (a.selected) {
       if (a.visibleIndex > b.visibleIndex)
-        return (yA - step).compareTo(yB);
+        result = (yA - step).compareTo(yB);
       else
-        return (yA + (a.selected ? halfH : 0))
+        result = (yA + (a.selected ? halfH : 0))
             .compareTo((yB + (b.selected ? step : 0)));
     } else if (b.selected) {
       if (a.visibleIndex > b.visibleIndex)
-        return yA.compareTo(yB + halfH);
+        result = yA.compareTo(yB + halfH);
       else
-        return yA.compareTo((yB - step));
+        result = yA.compareTo((yB - step));
     }
+    return result;
   }
 
   items.sort(direction == Direction.Vertical ? orderableVSort : orderableHSort);

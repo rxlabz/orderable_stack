@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:orderable_stack/orderable_stack.dart';
 
 void main() {
-  runApp(new MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       title: 'Flutter Demo',
-      theme: new ThemeData(
+      theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new MyHomePage(title: 'Reorder Demo'),
+      home: MyHomePage(title: 'Reorder Demo'),
     );
   }
 }
@@ -25,7 +25,7 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => new _MyHomePageState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
 const kItemSize = const Size.square(80.0);
@@ -41,77 +41,76 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool imgMode = false;
 
-  ValueNotifier<String> orderNotifier = new ValueNotifier<String>('');
+  ValueNotifier<String> orderNotifier = ValueNotifier<String>('');
 
   @override
   Widget build(BuildContext context) {
-    OrderPreview preview = new OrderPreview(orderNotifier: orderNotifier);
+    OrderPreview preview = OrderPreview(orderNotifier: orderNotifier);
     Size gSize = MediaQuery.of(context).size;
-    return new Scaffold(
-        appBar: new AppBar(
-          title: new Text(widget.title),
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
         ),
-        body: new Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              new Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                new Text('Text'),
-                new Switch(
-                    value: imgMode,
-                    onChanged: (value) => setState(() => imgMode = value)),
-                new Text('Image'),
-              ]),
-              preview,
-              new Center(
-                  child: imgMode
-                      ? new OrderableStack<Img>(
-                          items: imgs,
-                          itemSize: gSize.width < gSize.height
-                              ? new Size(gSize.width / 3, gSize.height - 200.0)
-                              : new Size(200.0, gSize.height - 300.0),
-                          margin: 0.0,
-                          itemBuilder: imgItemBuilder,
-                          onChange: (List<Object> orderedList) =>
-                              orderNotifier.value = orderedList.toString())
-                      : new OrderableStack<String>(
-                          direction: Direction.Vertical,
-                          items: chars,
-                          itemSize: const Size(200.0, 50.0),
-                          itemBuilder: itemBuilder,
-                          onChange: (List<String> orderedList) =>
-                              orderNotifier.value = orderedList.toString()))
-            ]));
+        body:
+            Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text('Text'),
+            Switch(
+                value: imgMode,
+                onChanged: (value) => setState(() => imgMode = value)),
+            Text('Image'),
+          ]),
+          preview,
+          Center(
+              child: imgMode
+                  ? OrderableStack<Img>(
+                      items: imgs,
+                      itemSize: gSize.width < gSize.height
+                          ? Size(gSize.width / 3, gSize.height - 200.0)
+                          : Size(200.0, gSize.height - 300.0),
+                      margin: 0.0,
+                      itemBuilder: imgItemBuilder,
+                      onChange: (List<Object> orderedList) =>
+                          orderNotifier.value = orderedList.toString())
+                  : OrderableStack<String>(
+                      direction: Direction.Vertical,
+                      items: chars,
+                      itemSize: const Size(200.0, 50.0),
+                      itemBuilder: itemBuilder,
+                      onChange: (List<String> orderedList) =>
+                          orderNotifier.value = orderedList.toString()))
+        ]));
   }
 
   Widget itemBuilder({Orderable<String> data, Size itemSize}) {
-    return new Container(
-      key: new Key("orderableDataWidget${data.dataIndex}"),
+    return Container(
+      key: Key("orderableDataWidget${data.dataIndex}"),
       color: data != null && !data.selected
           ? data.dataIndex == data.visibleIndex ? Colors.lime : Colors.cyan
           : Colors.orange,
       width: itemSize.width,
       height: itemSize.height,
-      child: new Center(
-          child: new Column(children: [
-        new Text(
+      child: Center(
+          child: Column(children: [
+        Text(
           "${data.value}",
-          style: new TextStyle(fontSize: 36.0, color: Colors.white),
+          style: TextStyle(fontSize: 36.0, color: Colors.white),
         )
       ])),
     );
   }
 
-  Widget imgItemBuilder({Orderable<Img> data, Size itemSize}) => new Container(
+  Widget imgItemBuilder({Orderable<Img> data, Size itemSize}) => Container(
         color: data != null && !data.selected
             ? data.dataIndex == data.visibleIndex ? Colors.lime : Colors.cyan
             : Colors.orange,
         width: itemSize.width,
         height: itemSize.height,
-        child: new Center(
-            child: new Column(
+        child: Center(
+            child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-              new Image.asset(
+              Image.asset(
                 data.value.url,
                 fit: BoxFit.contain,
               ),
@@ -134,7 +133,7 @@ class OrderPreview extends StatefulWidget {
   OrderPreview({this.orderNotifier});
 
   @override
-  State<StatefulWidget> createState() => new OrderPreviewState();
+  State<StatefulWidget> createState() => OrderPreviewState();
 }
 
 class OrderPreviewState extends State<OrderPreview> {
@@ -150,5 +149,5 @@ class OrderPreviewState extends State<OrderPreview> {
   }
 
   @override
-  Widget build(BuildContext context) => new Text(data);
+  Widget build(BuildContext context) => Text(data);
 }
