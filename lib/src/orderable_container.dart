@@ -11,11 +11,12 @@ class OrderableContainer<T> extends StatefulWidget {
   final double margin;
 
   OrderableContainer(
-      {@required this.uiItems,
+      {Key key,
+      @required this.uiItems,
       @required this.itemSize,
       this.margin = kMargin,
       this.direction = Direction.Horizontal})
-      : super(key: new Key('OrderableContainer'));
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => new OrderableContainerState();
@@ -41,12 +42,12 @@ class OrderableContainerState extends State<OrderableContainer> {
 /// widgets
 class OrderableWidget<T> extends StatefulWidget {
   final Orderable<T> data;
-  Size itemSize;
-  double maxPos;
-  Direction direction;
-  VoidCallback onMove;
-  VoidCallback onDrop;
-  double step;
+  final Size itemSize;
+  final double maxPos;
+  final Direction direction;
+  final VoidCallback onMove;
+  final VoidCallback onDrop;
+  final double step;
   final WidgetFactory<T> itemBuilder;
 
   OrderableWidget(
