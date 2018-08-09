@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:orderable_stack/orderable_stack.dart';
@@ -80,23 +82,20 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
         .map<Orderable<T>>((IndexedValue e) => e.value..visibleIndex = e.index)
         .toList();
 
-    /// notify the initial order
-    widget.onChange(currentOrder);
     lastOrder = currentOrder;
+
+    /// notify the initial order
+    scheduleMicrotask(() => widget.onChange(currentOrder));
   }
 
   @override
-  Widget build(BuildContext context) => new Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          new Center(
-              child: new OrderableContainer<T>(
-                  direction: widget.direction,
-                  uiItems: _updateZIndexes(_buildOrderableWidgets()),
-                  itemSize: widget.itemSize,
-                  margin: kMargin))
-        ],
-      );
+  Widget build(BuildContext context) {
+    return new OrderableContainer<T>(
+        direction: widget.direction,
+        uiItems: _updateZIndexes(_buildOrderableWidgets()),
+        itemSize: widget.itemSize,
+        margin: kMargin);
+  }
 
   List<OrderableWidget<T>> _buildOrderableWidgets() => orderableItems
       .map((Orderable<T> l) => new OrderableWidget(
