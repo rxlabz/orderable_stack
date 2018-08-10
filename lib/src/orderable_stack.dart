@@ -112,14 +112,14 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
       .toList();
 
   /// get the item position based on the visibleIndex property
-  /// if te item is dragged its current position is returned
+  /// if the item is dragged its current position is returned
   Offset getCurrentPosition(Orderable l) => l.selected
       ? l.currentPosition // if isDragged don't move
       : widget.direction == Direction.Horizontal
-          ? new Offset(l.visibleIndex * (widget.itemSize.width + widget.margin),
-              l.currentPosition.dy)
-          : new Offset(l.currentPosition.dx,
-              l.visibleIndex * (widget.itemSize.height + widget.margin));
+          ? new Offset(
+              l.visibleIndex * (widget.itemSize.width + widget.margin), 0.0)
+          : new Offset(
+              0.0, l.visibleIndex * (widget.itemSize.height + widget.margin));
 
   /// during item dragMove : sort data items by their widget currentPosition
   /// and update widget positions back
