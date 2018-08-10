@@ -4,21 +4,30 @@ import 'package:orderable_example/orderable_text_demo.dart';
 
 const kItemSize = const Size.square(80.0);
 
+const navItems = [
+  NavItemData('Text', Icons.text_fields),
+  NavItemData('Image', Icons.image)
+];
+
+class NavItemData {
+  final String label;
+  final IconData icon;
+  const NavItemData(this.label, this.icon);
+}
 
 void main() {
   runApp(OrderableDemoApp());
 }
 
 class OrderableDemoApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Orderable stack Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: OrderableDemo(title: 'Reorder Demo'),
+      home: OrderableDemo(title: 'Orderable stack Demo'),
     );
   }
 }
@@ -33,33 +42,35 @@ class OrderableDemo extends StatefulWidget {
 }
 
 class _OrderableDemoState extends State<OrderableDemo> {
-  bool imgMode = false;
+  int tabIndex = 0;
 
-  List currentOrder;
-
-  void onTypeSelection(int index) => setState(() => imgMode = index == 1);
+  void _onTypeSelection(int index) => setState(() => tabIndex = index);
 
   @override
-  Widget build(BuildContext context) {
-    final orderableWidget = _buildOrderableList(imgMode);
-
-    return Scaffold(
+  Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: imgMode ? 1 : 0,
-          items: [
-            BottomNavigationBarItem(
-                icon: Icon(Icons.text_fields), title: Text('Text')),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.image), title: Text('Image')),
-          ],
-          onTap: onTypeSelection,
-        ),
-        body: orderableWidget);
-  }
+        body: _buildOrderableList(),
+        bottomNavigationBar: _buildBottomNav(),
+      );
 
-  Widget _buildOrderableList(bool imgMode) =>
-      imgMode ? OrderableImages() : OrderableTextDemo();
+  Widget _buildOrderableList() =>
+      tabIndex > 0 ? OrderableImages() : OrderableTextDemo();
+
+  Widget _buildBottomNav() {
+    return BottomNavigationBar(
+      currentIndex: tabIndex,
+      items: navItems
+          .map((item) => buildNavItem(icon: item.icon, label: item.label))
+          .toList(),
+      onTap: _onTypeSelection,
+    );
+  }
 }
+
+BottomNavigationBarItem buildNavItem({IconData icon, String label}) =>
+    BottomNavigationBarItem(
+      icon: Icon(icon),
+      title: Text(label),
+    );
