@@ -51,12 +51,15 @@ class _OrderableDemoState extends State<OrderableDemo> {
         appBar: AppBar(
           title: Text(widget.title),
         ),
-        body: _buildOrderableList(),
+        body: OrientationBuilder(builder: (context, orientation) {
+          return _buildOrderableList(orientation);
+        }),
         bottomNavigationBar: _buildBottomNav(),
       );
 
-  Widget _buildOrderableList() =>
-      tabIndex > 0 ? OrderableImages() : OrderableTextDemo();
+  Widget _buildOrderableList(Orientation orientation) => tabIndex > 0
+      ? OrderableImages(orientation: orientation)
+      : OrderableTextDemo(orientation: orientation);
 
   Widget _buildBottomNav() {
     return BottomNavigationBar(

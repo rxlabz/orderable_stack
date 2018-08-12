@@ -28,7 +28,7 @@ class OrderableStack<T> extends StatefulWidget {
   final double margin;
 
   /// function to build orderableWidgets "content"
-  final WidgetFactory<T> itemBuilder;
+  final WidgetFactory<T> itemFactory;
 
   /// new order callback
   final void Function(List<T>) onChange;
@@ -43,7 +43,7 @@ class OrderableStack<T> extends StatefulWidget {
   ///
   OrderableStack(
       {@required this.items,
-      @required this.itemBuilder,
+      @required this.itemFactory,
       Key key,
       this.onChange,
       this.itemSize = kDefaultItemSize,
@@ -101,7 +101,7 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
       .map((Orderable<T> l) => new OrderableWidget(
           key: new Key('item_${l.dataIndex}'),
           step: widget.step,
-          itemBuilder: widget.itemBuilder,
+          itemBuilder: widget.itemFactory,
           itemSize: widget.itemSize,
           direction: widget.direction,
           maxPos: orderableItems.length * widget.step,

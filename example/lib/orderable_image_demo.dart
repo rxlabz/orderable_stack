@@ -17,8 +17,9 @@ class Img {
   String toString() => '$title';
 }
 
-
 class OrderableImages<Img> extends OrderableWidgetDemo {
+  OrderableImages({Orientation orientation}) : super(orientation: orientation);
+
   @override
   _OrderableImagesState createState() => _OrderableImagesState();
 }
@@ -28,40 +29,38 @@ class _OrderableImagesState extends OrderableWidgetDemoState<Img> {
   Widget build(BuildContext context) {
     final gSize = MediaQuery.of(context).size;
 
-    final itemSize = gSize.width < gSize.height
-        ? Size(gSize.width / 3, gSize.height - 300.0)
-        : Size(200.0, gSize.height - 300.0);
+    final itemSize = widget.orientation == Orientation.portrait
+        ? Size(gSize.width / 3, gSize.height - 200)
+        : Size(gSize.width - 495, gSize.height - 150);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisSize: MainAxisSize.max,
       children: <Widget>[
         buildPreview(),
-        OrderableStack<Img>(
-          key: Key('orderableImg'),
-          items: imgs,
-          itemSize: itemSize,
-          margin: 0.0,
-          itemBuilder: itemBuilder,
-          onChange: (items) => setState(() => orderedItems = items),
+        Center(
+          child: OrderableStack<Img>(
+            key: Key('orderableImg'),
+            items: imgs,
+            itemSize: itemSize,
+            margin: 0.0,
+            itemFactory: itemBuilder,
+            onChange: (items) => setState(() => orderedItems = items),
+          ),
         )
       ],
     );
   }
 
   Widget itemBuilder({Orderable<Img> data, Size itemSize}) => Container(
-    color: data != null && !data.selected
-        ? data.dataIndex == data.visibleIndex ? Colors.lime : Colors.cyan
-        : Colors.orange,
-    width: itemSize.width,
-    height: itemSize.height,
-    child: Center(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Image.asset(
-                data.value.url,
-                fit: BoxFit.contain,
-              ),
-            ])),
-  );
+        color: data != null && !data.selected
+            ? data.dataIndex == data.visibleIndex ? Colors.lime : Colors.cyan
+            : Colors.orange,
+        width: itemSize.width,
+        height: itemSize.height,
+        child: Image.asset(
+          data.value.url,
+          fit: BoxFit.scaleDown,
+        ),
+      );
 }

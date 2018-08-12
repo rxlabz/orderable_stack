@@ -9,12 +9,17 @@ const hOrderableSize = const Size(50.0, 80.0);
 ///
 ///
 class OrderableTextDemo<String> extends OrderableWidgetDemo {
+  OrderableTextDemo({Orientation orientation})
+      : super(orientation: orientation);
+
   @override
   _OrderableTextDemoState createState() => _OrderableTextDemoState();
 }
 
 class _OrderableTextDemoState extends OrderableWidgetDemoState<String> {
-  Direction direction = Direction.Vertical;
+  Direction get direction => widget.orientation == Orientation.portrait
+      ? Direction.Vertical
+      : Direction.Horizontal;
 
   Size get itemSize =>
       direction == Direction.Vertical ? vOrderableSize : hOrderableSize;
@@ -24,17 +29,6 @@ class _OrderableTextDemoState extends OrderableWidgetDemoState<String> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text('Vertical'),
-            Switch(
-              value: direction == Direction.Horizontal,
-              onChanged: _onDirectionSwitch,
-            ),
-            Text('Horizontal'),
-          ],
-        ),
         buildPreview(),
         Center(
           child: OrderableStack<String>(
@@ -42,7 +36,7 @@ class _OrderableTextDemoState extends OrderableWidgetDemoState<String> {
             direction: direction,
             items: chars,
             itemSize: itemSize,
-            itemBuilder: itemBuilder,
+            itemFactory: itemBuilder,
             onChange: onReorder,
           ),
         )
@@ -51,13 +45,9 @@ class _OrderableTextDemoState extends OrderableWidgetDemoState<String> {
   }
 
   Widget itemBuilder({Orderable<String> data, Size itemSize}) {
-    final color = data != null && !data.selected
-        ? data.dataIndex == data.visibleIndex ? Colors.lime : Colors.cyan
-        : Colors.orange;
-
     return Container(
         key: Key("orderableItem${data.dataIndex}"),
-        color: color,
+        color: getItemColor(data),
         width: itemSize.width,
         height: itemSize.height,
         child: Center(
@@ -75,7 +65,4 @@ class _OrderableTextDemoState extends OrderableWidgetDemoState<String> {
   void onReorder(List<String> items) {
     setState(() => orderedItems = items);
   }
-
-  void _onDirectionSwitch(bool horizontal) => setState(
-      () => direction = horizontal ? Direction.Horizontal : Direction.Vertical);
 }

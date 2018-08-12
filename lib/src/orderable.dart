@@ -26,6 +26,8 @@ class Orderable<T> {
   double get x => currentPosition.dx;
   double get y => currentPosition.dy;
 
+  get atOrigin => dataIndex == visibleIndex;
+
   Orderable({@required this.value, @required this.dataIndex})
       : visibleIndex = dataIndex;
 }
