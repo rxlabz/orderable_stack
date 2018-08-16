@@ -87,7 +87,7 @@ class OrderableWidgetState<T> extends State<OrderableWidget<T>>
         child: buildGestureDetector(horizontal: isHorizontal),
       );
 
-  /// build horizontal or verticak drag gesture detector
+  /// build horizontal or vertical drag gesture detector
   Widget buildGestureDetector({bool horizontal}) => horizontal
       ? new GestureDetector(
           onHorizontalDragStart: startDrag,

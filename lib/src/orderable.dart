@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 
 enum Direction { Vertical, Horizontal }
 
-/// associate value with
+/// Data wrapper
 class Orderable<T> {
   final T value;
 
@@ -26,6 +26,7 @@ class Orderable<T> {
   double get x => currentPosition.dx;
   double get y => currentPosition.dy;
 
+  /// is in initial/correct position
   get atOrigin => dataIndex == visibleIndex;
 
   Orderable({@required this.value, @required this.dataIndex})

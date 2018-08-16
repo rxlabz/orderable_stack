@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:orderable_example/orderable_widget_demo_base.dart';
 import 'package:orderable_stack/orderable_stack.dart';
 
-const chars = const ["A", "B", "C", "D"];
+const chars = const ["F", "R", "A", "I", "S", "E"];
+
 const vOrderableSize = const Size(200.0, 50.0);
 const hOrderableSize = const Size(50.0, 80.0);
 

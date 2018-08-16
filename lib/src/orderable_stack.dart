@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:orderable_stack/orderable_stack.dart';
@@ -142,6 +143,11 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
       if (currentOrder != lastOrder) {
         widget.onChange(currentOrder);
         lastOrder = currentOrder;
+
+        final eq = const ListEquality().equals;
+        if (eq(currentOrder, widget.items)) {
+          print('_OrderableStackState._onDrop... COMPLETE !!!');
+        }
       }
     });
   }
