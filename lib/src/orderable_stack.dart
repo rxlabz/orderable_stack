@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
@@ -257,15 +258,19 @@ class _ScrollableOrderableStackState<T> extends _OrderableStackState<T> {
   @override
   void _onDragMove(Orderable<T> data) {
     final visiblePos = data.currentPosition.dx - scrollController.offset;
+    print('_ScrollableOrderableStackState._onDragMove... ${scrollController.offset} ${scrollController.position}');
     if (visiblePos < widget.itemSize.width && scrollController.offset > 0) {
       print(
           '_OrderableStackState._onDragMove -> jumpTo ${scrollController.offset - widget.itemSize.width} ');
-      scrollController.jumpTo(scrollController.offset - widget.itemSize.width);
-      data.currentPosition -= Offset(widget.itemSize.width, 0.0);
+      scrollController.jumpTo(
+          math.max(scrollController.offset - widget.itemSize.width + 10, 0.0));
+      data.currentPosition -= Offset(widget.itemSize.width - 10, 0.0);
 /*        scrollController.animateTo(
             scrollController.offset - widget.itemSize.width,
             curve: Curves.linear,
             duration: Duration(milliseconds: 20));*/
+    } else {
+
     }
     super._onDragMove(data);
   }
