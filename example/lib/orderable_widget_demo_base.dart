@@ -13,6 +13,8 @@ class OrderableWidgetDemo<T> extends StatefulWidget {
 class OrderableWidgetDemoState<T> extends State<OrderableWidgetDemo> {
   List<T> orderedItems;
 
+  bool completed = false;
+
   @override
   Widget build(BuildContext context) {
     return Container();
@@ -26,6 +28,9 @@ class OrderableWidgetDemoState<T> extends State<OrderableWidgetDemo> {
 
   Widget buildPreview() => Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Text('$orderedItems'),
+        child: Text(
+          '$orderedItems',
+          style: TextStyle(color: completed ? Colors.green : Colors.black),
+        ),
       );
 }

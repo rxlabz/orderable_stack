@@ -31,8 +31,10 @@ class OrderableStack<T> extends StatefulWidget {
   /// function to build orderableWidgets "content"
   final WidgetFactory<T> itemFactory;
 
-  /// new order callback
+  /// order callback
   final void Function(List<T>) onChange;
+
+  final VoidCallback onComplete;
 
   /// true if items must be randomized (default : true )
   final bool shuffle;
@@ -47,6 +49,7 @@ class OrderableStack<T> extends StatefulWidget {
       @required this.itemFactory,
       Key key,
       this.onChange,
+      this.onComplete,
       this.itemSize = kDefaultItemSize,
       this.margin = kMargin,
       this.direction = Direction.Horizontal,
@@ -54,7 +57,7 @@ class OrderableStack<T> extends StatefulWidget {
       : super(key: key);
 
   @override
-  _OrderableStackState createState() => new _OrderableStackState<T>(
+  _OrderableStackState createState() => _OrderableStackState<T>(
         items,
       );
 }
@@ -63,20 +66,24 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
   List<Orderable<T>> orderableItems;
   List<T> lastOrder;
 
-  /// currently dragged widget if there is
   OrderableWidget<T> dragged;
+
+  /// currently dragged widget if there is
+  List<T> get currentOrder => orderableItems.map((item) => item.value).toList();
 
   _OrderableStackState(List<T> rawItems) {
     orderableItems = enumerate(rawItems)
-        .map((l) => new Orderable<T>(value: l.value, dataIndex: l.index))
+        .map((l) => Orderable<T>(value: l.value, dataIndex: l.index))
         .toList();
   }
-
-  List<T> get currentOrder => orderableItems.map((item) => item.value).toList();
 
   @override
   void initState() {
     super.initState();
+
+/*    scrollController = ScrollController()
+      ..addListener(() => print(
+          '_OrderableStackState onScroll... ${scrollController.position}'));*/
 
     if (widget.shuffle) orderableItems.shuffle();
     orderableItems = enumerate(orderableItems)
@@ -91,7 +98,7 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return new OrderableContainer<T>(
+    return OrderableContainer<T>(
         direction: widget.direction,
         uiItems: _updateZIndexes(_buildOrderableWidgets()),
         itemSize: widget.itemSize,
@@ -99,8 +106,8 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
   }
 
   List<OrderableWidget<T>> _buildOrderableWidgets() => orderableItems
-      .map((Orderable<T> l) => new OrderableWidget(
-          key: new Key('item_${l.dataIndex}'),
+      .map((Orderable<T> l) => OrderableWidget(
+          key: Key('item_${l.dataIndex}'),
           step: widget.step,
           itemBuilder: widget.itemFactory,
           itemSize: widget.itemSize,
@@ -117,15 +124,18 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
   Offset getCurrentPosition(Orderable l) => l.selected
       ? l.currentPosition // if isDragged don't move
       : widget.direction == Direction.Horizontal
-          ? new Offset(
+          ? Offset(
               l.visibleIndex * (widget.itemSize.width + widget.margin), 0.0)
-          : new Offset(
+          : Offset(
               0.0, l.visibleIndex * (widget.itemSize.height + widget.margin));
 
   /// during item dragMove : sort data items by their widget currentPosition
   /// and update widget positions back
-  void _onDragMove() {
+  void _onDragMove(Orderable<T> data) {
     setState(() {
+      final activePosition =
+          orderableItems.firstWhere((item) => item.selected).currentPosition;
+      print('_OrderableStackState._onDragMove... $activePosition');
       sortOrderables<Orderable<T>, T>(
           items: orderableItems,
           itemSize: widget.itemSize,
@@ -135,7 +145,7 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
     });
   }
 
-  /// on dragged : update positions and notify new order if changed
+  /// on dragged : update positions and notify order if changed
   void _onDrop() {
     setState(() {
       dragged = null;
@@ -146,6 +156,7 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
 
         final eq = const ListEquality().equals;
         if (eq(currentOrder, widget.items)) {
+          widget.onComplete();
           print('_OrderableStackState._onDrop... COMPLETE !!!');
         }
       }
@@ -169,5 +180,93 @@ class _OrderableStackState<T> extends State<OrderableStack<T>> {
       orderableItems.add(item);
     }
     return orderableItems;
+  }
+}
+
+class ScrollableOrderableStack<T> extends OrderableStack<T> {
+  ScrollableOrderableStack({
+    Key key,
+    @required List<T> items,
+    @required WidgetFactory<T> itemFactory,
+    void Function(List<T>) onChange,
+    VoidCallback onComplete,
+    Size itemSize = kDefaultItemSize,
+    double margin = kMargin,
+    Direction direction = Direction.Horizontal,
+    bool shuffle = true,
+  }) : super(
+          key: key,
+          items: items,
+          itemFactory: itemFactory,
+          onChange: onChange,
+          onComplete: onComplete,
+          itemSize: itemSize,
+          margin: margin,
+          direction: direction,
+          shuffle: shuffle,
+        );
+
+  @override
+  _ScrollableOrderableStackState createState() =>
+      _ScrollableOrderableStackState<T>(items);
+}
+
+class _ScrollableOrderableStackState<T> extends _OrderableStackState<T> {
+  _ScrollableOrderableStackState(List<T> rawItems) : super(rawItems);
+
+  ScrollController scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController = ScrollController();
+  }
+
+  @override
+  void didUpdateWidget(OrderableStack oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.direction != widget.direction) {
+      scrollController.animateTo(0.0, duration: null, curve: null);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // print('_OrderableStackState.build... $constraints');
+        return SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 10.0),
+          scrollDirection: widget.direction == Direction.Vertical
+              ? Axis.vertical
+              : Axis.horizontal,
+          controller: scrollController,
+          child: ConstrainedBox(
+            child: Center(
+              child: super.build(context),
+            ),
+            constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
+                minWidth: constraints.maxWidth),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void _onDragMove(Orderable<T> data) {
+    final visiblePos = data.currentPosition.dx - scrollController.offset;
+    if (visiblePos < widget.itemSize.width && scrollController.offset > 0) {
+      print(
+          '_OrderableStackState._onDragMove -> jumpTo ${scrollController.offset - widget.itemSize.width} ');
+      scrollController.jumpTo(scrollController.offset - widget.itemSize.width);
+      data.currentPosition -= Offset(widget.itemSize.width, 0.0);
+/*        scrollController.animateTo(
+            scrollController.offset - widget.itemSize.width,
+            curve: Curves.linear,
+            duration: Duration(milliseconds: 20));*/
+    }
+    super._onDragMove(data);
   }
 }

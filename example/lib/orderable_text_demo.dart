@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:orderable_example/orderable_widget_demo_base.dart';
 import 'package:orderable_stack/orderable_stack.dart';
 
-const chars = const ["F", "R", "A", "I", "S", "E"];
+const chars = const ['F', 'R', 'A', 'M', 'B', 'O', 'I', 'S', 'E', 'S'];
+//const chars = const ["F", "R", "A", "I", "S", "E"];
 
 const vOrderableSize = const Size(200.0, 50.0);
 const hOrderableSize = const Size(50.0, 80.0);
@@ -18,6 +19,8 @@ class OrderableTextDemo<String> extends OrderableWidgetDemo {
 }
 
 class _OrderableTextDemoState extends OrderableWidgetDemoState<String> {
+  bool completed = false;
+
   Direction get direction => widget.orientation == Orientation.portrait
       ? Direction.Vertical
       : Direction.Horizontal;
@@ -29,16 +32,19 @@ class _OrderableTextDemoState extends OrderableWidgetDemoState<String> {
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         buildPreview(),
-        Center(
-          child: OrderableStack<String>(
+        Expanded(
+          child: ScrollableOrderableStack<String>(
             key: Key('orderableText'),
             direction: direction,
             items: chars,
             itemSize: itemSize,
             itemFactory: itemBuilder,
             onChange: onReorder,
+            onComplete: () => setState(() => completed = true),
           ),
         )
       ],

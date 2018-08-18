@@ -42,14 +42,17 @@ class _OrderableDemoState extends State<OrderableDemo> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: Text(widget.title),
-    ),
-    body: OrientationBuilder(builder: (context, orientation) {
-      return _buildOrderableList(orientation);
-    }),
-    bottomNavigationBar: _buildBottomNav(),
-  );
+        appBar: AppBar(
+          title: Text(widget.title),
+        ),
+        body: OrientationBuilder(builder: (context, orientation) {
+          final deviceSize = MediaQuery.of(context).size;
+          return ConstrainedBox(
+              constraints: BoxConstraints.loose(deviceSize),
+              child: _buildOrderableList(orientation));
+        }),
+        bottomNavigationBar: _buildBottomNav(),
+      );
 
   Widget _buildOrderableList(Orientation orientation) => tabIndex > 0
       ? OrderableImages(orientation: orientation)

@@ -45,7 +45,7 @@ class OrderableWidget<T> extends StatefulWidget {
   final Size itemSize;
   final double maxPos;
   final Direction direction;
-  final VoidCallback onMove;
+  final Function(Orderable<T> data) onMove;
   final VoidCallback onDrop;
   final double step;
   final WidgetFactory<T> itemBuilder;
@@ -94,10 +94,11 @@ class OrderableWidgetState<T> extends State<OrderableWidget<T>>
           onHorizontalDragEnd: endDrag,
           onHorizontalDragUpdate: (event) {
             setState(() {
-              if (moreThanMin(event) && lessThanMax(event))
-                data.currentPosition =
-                    new Offset(data.x + event.primaryDelta, data.y);
-              widget.onMove();
+              if (moreThanMin(event) && lessThanMax(event)) {
+                final newPos = new Offset(data.x + event.primaryDelta, data.y);
+                data.currentPosition = newPos;
+                widget.onMove(data);
+              }
             });
           },
           child: widget.itemBuilder(data: data, itemSize: widget.itemSize),
@@ -107,10 +108,11 @@ class OrderableWidgetState<T> extends State<OrderableWidget<T>>
           onVerticalDragEnd: endDrag,
           onVerticalDragUpdate: (event) {
             setState(() {
-              if (moreThanMin(event) && lessThanMax(event))
-                data.currentPosition =
-                    new Offset(data.x, data.y + event.primaryDelta);
-              widget.onMove();
+              if (moreThanMin(event) && lessThanMax(event)) {
+                final newPos = new Offset(data.x, data.y + event.primaryDelta);
+                data.currentPosition = newPos;
+                widget.onMove(data);
+              }
             });
           },
           child: widget.itemBuilder(data: data, itemSize: widget.itemSize),
